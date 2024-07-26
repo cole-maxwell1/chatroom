@@ -25,7 +25,6 @@ clean:
 watch:
 	@if command -v air > /dev/null; then \
 	    air; \
-		npx tailwindcss -i ./cmd/web/css/input.css -o ./cmd/web/css/main.css;\
 	    echo "Watching...";\
 	else \
 	    read -p "Go's 'air' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
