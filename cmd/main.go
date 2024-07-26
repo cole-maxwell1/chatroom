@@ -3,26 +3,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/cole-maxwell1/chatroom/internal/pkg"
+	"github.com/cole-maxwell1/chatroom/internal/server"
 )
 
-// Message represents a chat message
-type Message struct {
-	Content           string
-	Username          string
-	FormattedDateTime string
-}
-
 func main() {
-	const TOTAL_STORED_MESSAGES = 500
-	messageBuffer := pkg.NewRingBuffer[Message](TOTAL_STORED_MESSAGES)
+	 
+	server := server.NewServer()
 
-	for i := 1; i <= 501; i++ {
-		messageBuffer.Add(Message{Content: fmt.Sprintf("Message %d", i)})
-	}
-
-	messages := messageBuffer.Get()
-	for _, msg := range messages {
-		fmt.Println(msg.Content)
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(fmt.Sprintf("cannot start server: %s", err))
 	}
 }
