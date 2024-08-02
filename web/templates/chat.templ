@@ -1,8 +1,11 @@
 package templates
 
-import "github.com/cole-maxwell1/chatroom/internal/models"
+import (
+	"github.com/cole-maxwell1/chatroom/internal/models"
+	"strconv"
+)
 
-templ ChatDisplay(messages []models.ChatMessage) {
+templ ChatDisplay(messages []models.ChatMessage, connectedUsers int) {
 	@Base() {
 		<div
 			hx-ext="ws"
@@ -57,6 +60,9 @@ templ ChatDisplay(messages []models.ChatMessage) {
 					class="bg-blue-500 text-white px-4 py-2 rounded-lg"
 				>Send</button>
 			</form>
+			<div id="total-users">
+				<h1>Total Users: { strconv.Itoa(connectedUsers) }</h1>
+			</div>
 			<script src="javascript/chatDisplay.js"></script>
 		</div>
 	}
@@ -69,4 +75,10 @@ templ ChatMessage(msg models.ChatMessage) {
 			<p class="text-xs text-gray-500">{ msg.Username } on { msg.FormattedDateTime }</p>
 		</li>
 	</ul>
+}
+
+templ TotalChatters(totUsers int) {
+	<div hx-swap-oob="innerHtml:#total-users" >
+		<h1>Total Users: { strconv.Itoa(totUsers) }</h1>
+	</div>
 }

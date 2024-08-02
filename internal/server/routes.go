@@ -22,14 +22,19 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.GET("/javascript/*", echo.WrapHandler(fileServer))
 	e.GET("/css/main.css", echo.WrapHandler(fileServer))
 
-	// Register routes
-	e.GET("/", web.RenderChatRoom)
-	//e.GET("/events", web.HandleServerSentEvents)
-
 	broker := web.NewHub()
 	go broker.Run()
 	e.GET("/ws", func(c echo.Context) error {
 		web.HandleWebSocket(broker, c.Response(), c.Request())
+		return nil
+	})
+
+	// Register routes
+	e.GET("/", func(c echo.Context) error {
+		err := web.RenderChatRoom(c, broker)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 

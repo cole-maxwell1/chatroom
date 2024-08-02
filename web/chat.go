@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RenderChatRoom(c echo.Context) error {
-	return Render(c, http.StatusOK, templates.ChatDisplay(chatMessages.Get()))
+func RenderChatRoom(c echo.Context, broker *WebSocketBroker) error {
+	return Render(c, http.StatusOK, templates.ChatDisplay(chatMessages.Get(), len(broker.clients)))
 }
 
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {

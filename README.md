@@ -1,10 +1,10 @@
 # Chatroom Project
 
-This project is a chatroom application that leverages Server-Sent Events (SSE) for real-time communication and a ring buffer data structure to store messages efficiently.
+This project is a chatroom application that leverages [Websockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) for real-time communication and a ring buffer data structure to store messages efficiently.
 
 ## Concepts Explored
 
-- **Real-time Communication**: Utilizes *Server-Sent Events* (SSE) to push updates to clients in real-time.
+- **Real-time Communication**: Utilizes s *Websocket* to push messages and total connected users to clients in real-time.
 - **Efficient Message Storage**: Implements a ring buffer data structure to manage and store chat messages, preventing high memory usage.
 
 ## Technologies Used

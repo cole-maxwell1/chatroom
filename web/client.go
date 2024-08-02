@@ -1,6 +1,14 @@
 // Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+// See: https://github.com/gorilla/websocket/tree/main/examples/chat
+
+/*
+Cole Maxwell 2024
+
+Modifications:
+- Client now sends messages to the broker through an inbound channel.
+*/
 
 package web
 
@@ -39,7 +47,7 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
+	hub *WebSocketBroker
 
 	// The websocket connection.
 	conn *websocket.Conn
@@ -121,7 +129,7 @@ func (c *Client) writePump() {
 }
 
 // HandleWebSocket handles websocket requests from the peer.
-func HandleWebSocket(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func HandleWebSocket(hub *WebSocketBroker, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
