@@ -1,0 +1,72 @@
+package templates
+
+import "github.com/cole-maxwell1/chatroom/internal/models"
+
+templ ChatDisplay(messages []models.ChatMessage) {
+	@Base() {
+		<div
+			hx-ext="ws"
+			ws-connect="/ws"
+		>
+			/* <h1 class="text-xl font-semibold">Chat Messages</h1>
+			<ul
+				class="max-h-60 flex flex-col overflow-auto"
+				hx-ext="sse"
+				sse-connect="/events?stream=new-message"
+				sse-swap="new-message"
+			>
+			</ul> */
+			<h1 class="text-xl font-semibold">Chat Messages</h1>
+			<ul
+				class="max-h-60 flex flex-col overflow-auto"
+				id="chat-messages"
+			>
+				for _, msg := range messages {
+					<li class="text-left bg-white text-gray-900 p-2">
+						<p class="text-base">{ msg.Content }</p>
+						<p class="text-xs text-gray-500">{ msg.Username } on { msg.FormattedDateTime }</p>
+					</li>
+				}
+			</ul>
+			<!-- Enter a username before chatting -->
+			<div id="config-username" class="flex gap-3">
+				<input type="text" id="input-username" placeholder="Enter a username..." class="w-80 max-w-80"/>
+				<button id="set-username" type="button" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+					Set
+					Username
+				</button>
+			</div>
+			<form ws-send id="chat-form" class="hidden flex-col gap-3">
+				<input type="hidden" id="username" name="username"/>
+				<label id="chat-label" for="message" class="block text-sm font-medium leading-6 text-gray-900">
+					Send a
+					new
+					message
+				</label>
+				<textarea
+					disabled="true"
+					name="message"
+					autocomplete="on"
+					placeholder="Type a message..."
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+				></textarea>
+				<button
+					disabled="true"
+					name="send-message"
+					type="submit"
+					class="bg-blue-500 text-white px-4 py-2 rounded-lg"
+				>Send</button>
+			</form>
+			<script src="javascript/chatDisplay.js"></script>
+		</div>
+	}
+}
+
+templ ChatMessage(msg models.ChatMessage) {
+	<ul hx-swap-oob="beforeend:#chat-messages">
+		<li class="text-left bg-white text-gray-900 p-2">
+			<p class="text-base">{ msg.Content }</p>
+			<p class="text-xs text-gray-500">{ msg.Username } on { msg.FormattedDateTime }</p>
+		</li>
+	</ul>
+}

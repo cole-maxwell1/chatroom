@@ -4,27 +4,34 @@ import (
 	"net/http"
 
 	"github.com/cole-maxwell1/chatroom/web"
-	"github.com/cole-maxwell1/chatroom/web/templates"
-	"github.com/a-h/templ"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	e := echo.New()
+
+	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 
+	// Serve static files
 	fileServer := http.FileServer(http.FS(web.Files))
 	e.GET("/javascript/*", echo.WrapHandler(fileServer))
 	e.GET("/css/main.css", echo.WrapHandler(fileServer))
 
-	e.GET("/", echo.WrapHandler(templ.Handler(templates.HelloForm())))
-	e.POST("/hello", echo.WrapHandler(http.HandlerFunc(web.HelloWebHandler)))
+	// Register routes
+	e.GET("/", web.RenderChatRoom)
+	//e.GET("/events", web.HandleServerSentEvents)
+
+	broker := web.NewHub()
+	go broker.Run()
+	e.GET("/ws", func(c echo.Context) error {
+		web.HandleWebSocket(broker, c.Response(), c.Request())
+		return nil
+	})
 
 	return e
 }
-
-
-
