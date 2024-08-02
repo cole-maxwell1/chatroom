@@ -4,7 +4,9 @@ go 1.22.0
 
 require (
 	github.com/a-h/templ v0.2.747
+	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/r3labs/sse/v2 v2.10.0
 )
 
 require (
@@ -19,4 +21,5 @@ require (
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
+	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 )
