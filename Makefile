@@ -5,6 +5,8 @@ all: build
 
 build:
 	@echo "Building..."
+	@templ generate
+	@npm run tailwind:build
 	@go build -o ./tmp/main cmd/main.go
 
 # Run the application
