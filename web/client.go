@@ -78,7 +78,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.inbound <- message
+		c.hub.inbound <- InboundMessage{Client: c, UnsanitizedMessage: message}
 	}
 }
 

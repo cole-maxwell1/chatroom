@@ -19,6 +19,8 @@ package web
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -27,13 +29,18 @@ import (
 	"github.com/cole-maxwell1/chatroom/web/templates"
 )
 
+type InboundMessage struct {
+	UnsanitizedMessage []byte
+	Client             *Client
+}
+
 // broker maintains the set of active clients and broadcasts messages to the
 // clients.
 type WebSocketBroker struct {
 	// Registered clients.
 	clients map[*Client]bool
 
-	inbound chan []byte
+	inbound chan InboundMessage
 
 	// Inbound messages from the clients.
 	broadcast chan []byte
@@ -49,7 +56,7 @@ type WebSocketBroker struct {
 
 func NewHub() *WebSocketBroker {
 	return &WebSocketBroker{
-		inbound:          make(chan []byte),
+		inbound:          make(chan InboundMessage),
 		broadcast:        make(chan []byte),
 		register:         make(chan *Client),
 		unregister:       make(chan *Client),
@@ -58,38 +65,33 @@ func NewHub() *WebSocketBroker {
 	}
 }
 
-func (h *WebSocketBroker) Run() {
+func (b *WebSocketBroker) Run() {
 	for {
 		select {
-		case client := <-h.register:
-			h.clients[client] = true
-			h.connectionChange <- struct{}{}
-		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
+		case client := <-b.register:
+			b.clients[client] = true
+			b.connectionChange <- struct{}{}
+		case client := <-b.unregister:
+			if _, ok := b.clients[client]; ok {
+				delete(b.clients, client)
 				close(client.send)
-				h.connectionChange <- struct{}{}
+				b.connectionChange <- struct{}{}
 			}
-		case message := <-h.broadcast:
-			for client := range h.clients {
+		case message := <-b.broadcast:
+			for client := range b.clients {
 				select {
 				case client.send <- message:
 				default:
 					close(client.send)
-					delete(h.clients, client)
+					delete(b.clients, client)
 				}
 			}
-		case message := <-h.inbound:
-			go func(msg []byte) {
-				sanitizedMessage := sanitizeMessage(msg)
-				h.broadcast <- sanitizedMessage
-			}(message)
-
-		case <-h.connectionChange:
+		case message := <-b.inbound:
+			go b.sanitizeMessage(message)
+		case <-b.connectionChange:
 			go func(tot int) {
-				h.broadcast <- renderTotalChatters(tot)
-
-			}(len(h.clients))
+				b.broadcast <- renderTotalChatters(tot)
+			}(len(b.clients))
 		}
 	}
 }
@@ -105,21 +107,34 @@ const MAX_MESSAGES = 100
 
 var chatMessages = pkg.NewRingBuffer[models.ChatMessage](MAX_MESSAGES)
 
-func sanitizeMessage(msg []byte) []byte {
+type NewMessage struct {
+	Message  string `json:"message"`
+	Username string `json:"username"`
+}
 
-	// Remove leading and trailing whitespace from the message
-	msg = bytes.TrimSpace(bytes.Replace(msg, newline, space, -1))
+func (b *WebSocketBroker) sanitizeMessage(msg InboundMessage) {
 
-	newMessage := models.ChatMessage{
-		Content:           string(msg),
-		Username:          string(' '), // Replace the empty rune literal with a space rune
-		FormattedDateTime: pkg.FormatDate(time.Now()),
+	var incomingMsg NewMessage
+	// Parse msg to json object
+	err := json.Unmarshal(msg.UnsanitizedMessage, &incomingMsg)
+	if err != nil {
+		msg.Client.send <- []byte("Invalid message format")
+	} else {
+		// Remove leading and trailing whitespace from the message
+		sanitizedMsg := strings.TrimSpace(strings.Replace(incomingMsg.Message, "\n", " ", -1))
+
+		formattedMessage := models.ChatMessage{
+			Content:           sanitizedMsg,
+			Username:          incomingMsg.Username, // Replace the empty rune literal with a space rune
+			FormattedDateTime: pkg.FormatDate(time.Now()),
+		}
+
+		chatMessages.Add(formattedMessage)
+
+		var templBytes bytes.Buffer
+		templates.ChatMessage(formattedMessage).Render(context.Background(), &templBytes)
+
+		b.broadcast <- templBytes.Bytes()
 	}
 
-	chatMessages.Add(newMessage)
-
-	var templBytes bytes.Buffer
-	templates.ChatMessage(newMessage).Render(context.Background(), &templBytes)
-
-	return templBytes.Bytes()
 }
