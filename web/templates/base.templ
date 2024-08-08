@@ -7,12 +7,11 @@ templ Base() {
 			<meta charset="utf-8"/>
 			<title>Chatroom</title>
 			<script src="/javascript/htmx.min.js"></script>
-			<script src="/javascript/sse.js"></script>
 			<script src="/javascript/ws.js"></script>
-			<link rel="stylesheet" href="/css/main.css"></link>
+			<link rel="stylesheet" href="/css/main.css"/>
 		</head>
-		<body>
-			<main class="bg-gray-100">
+		<body class="text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-950">
+			<main class="p-6 max-h-dvh h-dvh">
 				{ children... }
 			</main>
 		</body>

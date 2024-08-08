@@ -99,7 +99,7 @@ func (b *WebSocketBroker) Run() {
 func renderTotalChatters(numChatters int) []byte {
 	buf := templ.GetBuffer()
 	defer templ.ReleaseBuffer(buf)
-	templates.TotalChatters(numChatters).Render(context.Background(), buf)
+	templates.TotalChattersSwap(numChatters).Render(context.Background(), buf)
 	return buf.Bytes()
 }
 
@@ -132,7 +132,7 @@ func (b *WebSocketBroker) sanitizeMessage(msg InboundMessage) {
 		chatMessages.Add(formattedMessage)
 
 		var templBytes bytes.Buffer
-		templates.ChatMessage(formattedMessage).Render(context.Background(), &templBytes)
+		templates.ChatMessageSwap(formattedMessage).Render(context.Background(), &templBytes)
 
 		b.broadcast <- templBytes.Bytes()
 	}
