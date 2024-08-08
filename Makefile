@@ -1,4 +1,5 @@
 # Simple Makefile for a Go project
+BINARY_NAME=chatroom
 
 # Build the application
 all: build
@@ -7,7 +8,7 @@ build:
 	@echo "Building..."
 	@templ generate
 	@npm run tailwind:build
-	@go build -o ./tmp/main cmd/main.go
+	@go build -o ./tmp/${BINARY_NAME} cmd/main.go
 
 # Run the application
 run:
@@ -21,7 +22,7 @@ test:
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	@rm -f main
+	@rm -f ${BINARY_NAME}
 
 # Live Reload
 watch:
