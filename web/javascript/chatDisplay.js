@@ -46,7 +46,6 @@ document.body.addEventListener("htmx:wsAfterMessage", (event) => {
 
 // listen for htmx:wsAfterSend event on the chat form and clear the textarea
 document.body.addEventListener("htmx:wsAfterSend", function (event) {
-  console.log(event);
   clearChatTextarea();
   countMessageCharacters();
 });
