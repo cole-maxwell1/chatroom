@@ -35,12 +35,12 @@ templ ChatDisplay(messages []models.ChatMessage, connectedUsers int) {
 				<hr class="border dark:border-gray-800"/>
 				<!-- Enter a username before chatting -->
 				<div class="flex flex-col">
-					<div class="flex flex-col self-end" id="total-users">
+					<div class="flex gap-1 self-end items-center" id="total-users">
 						@TotalChatters(connectedUsers)
 					</div>
 					<form id="config-username" class="flex flex-col">
-						<label for="input-username" class="text-sm font-medium leading-6">
-							Enter a username
+						<label for="input-username">
+							Username
 						</label>
 						<input
 							type="text"
@@ -57,7 +57,7 @@ templ ChatDisplay(messages []models.ChatMessage, connectedUsers int) {
 					</form>
 					<form ws-send id="chat-form" class="hidden flex-col">
 						<input type="hidden" id="username" name="username"/>
-						<label id="chat-label" for="message" class="block mb-1 text-sm font-medium leading-6">
+						<label id="chat-label" for="message">
 							Send a new message
 						</label>
 						<textarea
@@ -109,18 +109,32 @@ templ ChatMessageSwap(msg models.ChatMessage) {
 }
 
 templ TotalChatters(totUsers int) {
-	<div class="flex justify-between">
-		<h4 class="mb-1">Chatters</h4>
-	</div>
 	<div class="flex gap-x-1 items-center self-end">
 		<span class="text-xl font-normal">
-			<div id="status-indicator" class="flex-none p-1 rounded-full bg-emerald-500/20">
-				<div id="sub-status-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-			</div>
+			if totUsers - 1 == 0 {
+				<div id="status-indicator" class="flex-none p-1 rounded-full bg-red-500/20">
+					<div id="sub-status-indicator" class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+				</div>
+			} else {
+				<div id="status-indicator" class="flex-none p-1 rounded-full bg-emerald-500/20">
+					<div id="sub-status-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+				</div>
+			}
 		</span>
 		<p class="font-semibold text-3xl">
-			{ strconv.Itoa(totUsers) }
+			{ strconv.Itoa(totUsers - 1) }
 		</p>
+	</div>
+	<div class="flex justify-between">
+		if totUsers - 1 == 1 {
+			<p>
+				Chatter
+			</p>
+		} else {
+			<p>
+				Chatters
+			</p>
+		}
 	</div>
 }
 

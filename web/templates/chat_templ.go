@@ -53,7 +53,7 @@ func ChatDisplay(messages []models.ChatMessage, connectedUsers int) templ.Compon
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul><hr class=\"border dark:border-gray-800\"><!-- Enter a username before chatting --><div class=\"flex flex-col\"><div class=\"flex flex-col self-end\" id=\"total-users\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul><hr class=\"border dark:border-gray-800\"><!-- Enter a username before chatting --><div class=\"flex flex-col\"><div class=\"flex gap-1 self-end items-center\" id=\"total-users\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -61,7 +61,7 @@ func ChatDisplay(messages []models.ChatMessage, connectedUsers int) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><form id=\"config-username\" class=\"flex flex-col\"><label for=\"input-username\" class=\"text-sm font-medium leading-6\">Enter a username</label> <input type=\"text\" minlength=\"1\" maxlength=\"20\" required id=\"input-username\" placeholder=\"Enter a username...\"> <button id=\"set-username\" type=\"submit\" class=\"place-self-end\">Set Username</button></form><form ws-send id=\"chat-form\" class=\"hidden flex-col\"><input type=\"hidden\" id=\"username\" name=\"username\"> <label id=\"chat-label\" for=\"message\" class=\"block mb-1 text-sm font-medium leading-6\">Send a new message</label> <textarea class=\"h-32\" disabled=\"true\" name=\"message\" id=\"message\" autocomplete=\"on\" placeholder=\"Type a message...\" minlength=\"1\" maxlength=\"1000\" required></textarea><div><p id=\"message-counter\" class=\"float-start text-gray-600 dark:text-gray-400\">0/1000</p><button disabled=\"true\" id=\"send-message\" type=\"submit\" class=\"float-end\">Send</button></div></form></div></div><script src=\"javascript/chatDisplay.js\"></script></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><form id=\"config-username\" class=\"flex flex-col\"><label for=\"input-username\">Username</label> <input type=\"text\" minlength=\"1\" maxlength=\"20\" required id=\"input-username\" placeholder=\"Enter a username...\"> <button id=\"set-username\" type=\"submit\" class=\"place-self-end\">Set Username</button></form><form ws-send id=\"chat-form\" class=\"hidden flex-col\"><input type=\"hidden\" id=\"username\" name=\"username\"> <label id=\"chat-label\" for=\"message\">Send a new message</label> <textarea class=\"h-32\" disabled=\"true\" name=\"message\" id=\"message\" autocomplete=\"on\" placeholder=\"Type a message...\" minlength=\"1\" maxlength=\"1000\" required></textarea><div><p id=\"message-counter\" class=\"float-start text-gray-600 dark:text-gray-400\">0/1000</p><button disabled=\"true\" id=\"send-message\" type=\"submit\" class=\"float-end\">Send</button></div></form></div></div><script src=\"javascript/chatDisplay.js\"></script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -192,20 +192,50 @@ func TotalChatters(totUsers int) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex justify-between\"><h4 class=\"mb-1\">Chatters</h4></div><div class=\"flex gap-x-1 items-center self-end\"><span class=\"text-xl font-normal\"><div id=\"status-indicator\" class=\"flex-none p-1 rounded-full bg-emerald-500/20\"><div id=\"sub-status-indicator\" class=\"w-1.5 h-1.5 rounded-full bg-emerald-500\"></div></div></span><p class=\"font-semibold text-3xl\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex gap-x-1 items-center self-end\"><span class=\"text-xl font-normal\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if totUsers-1 == 0 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"status-indicator\" class=\"flex-none p-1 rounded-full bg-red-500/20\"><div id=\"sub-status-indicator\" class=\"w-1.5 h-1.5 rounded-full bg-red-500\"></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"status-indicator\" class=\"flex-none p-1 rounded-full bg-emerald-500/20\"><div id=\"sub-status-indicator\" class=\"w-1.5 h-1.5 rounded-full bg-emerald-500\"></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span><p class=\"font-semibold text-3xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(totUsers))
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(totUsers - 1))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/chat.templ`, Line: 122, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/chat.templ`, Line: 125, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p></div><div class=\"flex justify-between\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if totUsers-1 == 1 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Chatter</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Chatters</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
