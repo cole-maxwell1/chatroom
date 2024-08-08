@@ -1,7 +1,9 @@
 package server
 
 import (
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/cole-maxwell1/chatroom/web"
 
@@ -16,6 +18,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Skipper:      skipWebSocket,
+		ErrorMessage: "Request timeout",
+		OnTimeoutRouteErrorHandler: func(err error, c echo.Context) {
+			log.Println(c.Path())
+		},
+		Timeout: 10 * time.Second,
+	}))
 
 	// Serve static files
 	fileServer := http.FileServer(http.FS(web.Files))
@@ -39,4 +49,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	})
 
 	return e
+}
+
+func skipWebSocket(c echo.Context) bool {
+	// Skip middleware if path is equal 'login'
+	if c.Request().URL.Path == "/ws" {
+		return true
+	}
+	return false
 }
