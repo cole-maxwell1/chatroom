@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/TwiN/go-away"
+	goaway "github.com/TwiN/go-away"
 	"github.com/a-h/templ"
 	"github.com/cole-maxwell1/chatroom/internal/models"
 	"github.com/cole-maxwell1/chatroom/internal/pkg"
@@ -128,9 +128,9 @@ func (b *WebSocketBroker) sanitizeMessage(msg InboundMessage) {
 		sanitizedMsg = goaway.Censor(sanitizedMsg)
 
 		formattedMessage := models.ChatMessage{
-			Content:           sanitizedMsg,
-			Username:          sanitizedUsername, // Replace the empty rune literal with a space rune
-			FormattedDateTime: pkg.FormatDate(time.Now()),
+			Content:   sanitizedMsg,
+			Username:  sanitizedUsername, // Replace the empty rune literal with a space rune
+			Timestamp: time.Now(),
 		}
 
 		chatMessages.Add(formattedMessage)

@@ -1,23 +1,41 @@
-// listen for htmx:wsConnecting event
-document.body.addEventListener("htmx:wsConnecting", function (event) {
-  console.log("WebSocket connecting...");
+//////////////////////////////////////
+// Initial page setup
+//////////////////////////////////////
+document.addEventListener("DOMContentLoaded", () => {
+  const chat = document.getElementById("chat-messages");
+  if (chat) {
+    formatMessageTimestamps(chat);
+    scrollMessages();
+  }
+});
 
+//////////////////////////////////////
+// constants
+//////////////////////////////////////
+const STATUS_COLORS = {
+  green: ["bg-green-500/20", "bg-green-500"],
+  red: ["bg-red-500/20", "bg-red-500"],
+  yellow: ["bg-yellow-500/20", "bg-yellow-500"],
+};
+
+//////////////////////////////////////
+// Event listeners
+//////////////////////////////////////
+
+/* Websocket connection */
+document.body.addEventListener("htmx:wsConnecting", () => {
+  console.log("WebSocket connecting...");
   setStatusIndicator("yellow");
   updateStatus("connecting...");
 });
 
-// listen for htmx:wsOpen event
-document.body.addEventListener("htmx:wsOpen", function (event) {
+document.body.addEventListener("htmx:wsOpen", () => {
   console.log("WebSocket connection opened");
-
-  // Update status-indicator class
   setStatusIndicator("green");
   updateStatus("Connected 📡");
 });
 
-// listen for htmx:wsClose event
-document.body.addEventListener("htmx:wsClose", function (event) {
-  // @ts-ignore
+document.body.addEventListener("htmx:wsClose", (event) => {
   const closeCode = event.detail.event.code;
   console.log(`WebSocket connection closed with code ${closeCode}`);
 
@@ -26,46 +44,45 @@ document.body.addEventListener("htmx:wsClose", function (event) {
     updateStatus("Connection was lost, retrying...");
   } else {
     setStatusIndicator("red");
-    updateStatus(`Connection closed, please refresh the page to reconnect.
-    If the problem persists, please contact an administrator. CODE: ${closeCode}`);
+    updateStatus(
+      `Connection closed, please refresh the page to reconnect. If the problem persists, please contact an administrator. CODE: ${closeCode}`
+    );
   }
 });
 
-// listen for htmx:wsError event
-document.body.addEventListener("htmx:wsError", function (event) {
-  // @ts-ignore
+document.body.addEventListener("htmx:wsError", (event) => {
   console.error("WebSocket error:", event.detail);
   setStatusIndicator("red");
   updateStatus("Connection error, retrying...");
 });
 
-// When a new message is received, scroll to the bottom of the chat
-document.body.addEventListener("htmx:wsAfterMessage", (event) => {
-  scrollMessages();
+/* Websocket messages */
+document.body.addEventListener("htmx:wsAfterMessage", scrollMessages);
+
+// If the websocket swap is a new message, format the timestamp
+document.body.addEventListener("htmx:oobBeforeSwap", (event) => {
+  formatMessageTimestamps(event.detail.fragment);
 });
 
-// listen for htmx:wsAfterSend event on the chat form and clear the textarea
-document.body.addEventListener("htmx:wsAfterSend", function (event) {
+document.body.addEventListener("htmx:wsAfterSend", () => {
   clearChatTextarea();
   countMessageCharacters();
 });
 
+/* 
+Handles the form state. A user must set a username before sending a message.
+The username is stored in a hidden input field and is sent with the message.
+*/
 const messageTextarea = document.getElementById("message");
 if (messageTextarea) {
-  messageTextarea.addEventListener("input", function (event) {
-    countMessageCharacters();
-  });
+  messageTextarea.addEventListener("input", countMessageCharacters);
 }
 
 const setUserNameButton = document.getElementById("config-username");
-// listen for click event on the Set Username button
 if (setUserNameButton) {
-  setUserNameButton.addEventListener("submit", function (event) {
-    // prevent the form from submitting
+  setUserNameButton.addEventListener("submit", (event) => {
     event.preventDefault();
-
     const username = document.getElementById("input-username").value;
-    // check if the username is not empty
     if (username) {
       document.getElementById("input-username").disabled = true;
       document.querySelector('textarea[name="message"]').disabled = false;
@@ -81,6 +98,10 @@ if (setUserNameButton) {
   });
 }
 
+//////////////////////////////////////
+// Helper functions
+//////////////////////////////////////
+
 /**
  * Sets the status indicator color
  * @param { "green" | "red" | "yellow"} color
@@ -90,24 +111,11 @@ function setStatusIndicator(color) {
   const statusIndicator = document.getElementById("status-indicator");
   const subStatusIndicator = document.getElementById("sub-status-indicator");
 
-  if (!statusIndicator || !subStatusIndicator) {
-    return;
-  }
+  if (!statusIndicator || !subStatusIndicator) return;
 
-  switch (color) {
-    case "green":
-      statusIndicator.classList.add("bg-green-500/20");
-      subStatusIndicator.classList.add("bg-green-500");
-      break;
-    case "red":
-      statusIndicator.classList.add("bg-red-500/20");
-      subStatusIndicator.classList.add("bg-red-500");
-      break;
-    case "yellow":
-      statusIndicator.classList.add("bg-yellow-500/20");
-      subStatusIndicator.classList.add("bg-yellow-500");
-      break;
-  }
+  const [bgColor, subBgColor] = STATUS_COLORS[color];
+  statusIndicator.classList.add(bgColor);
+  subStatusIndicator.classList.add(subBgColor);
 }
 
 /**
@@ -118,45 +126,24 @@ function cleanStatusIndicator() {
   const statusIndicator = document.getElementById("status-indicator");
   const subStatusIndicator = document.getElementById("sub-status-indicator");
 
-  if (!statusIndicator || !subStatusIndicator) {
-    return;
-  }
+  if (!statusIndicator || !subStatusIndicator) return;
 
-  const possibleStatusIndicatorClass = [
-    "bg-red-500/20",
-    "bg-yellow-500/20",
-    "bg-green-500/20",
-  ];
-
-  const possibleSubStatusIndicatorClass = [
-    "bg-red-500",
-    "bg-yellow-500",
-    "bg-green-500",
-  ];
-
-  for (let i = 0; i < possibleStatusIndicatorClass.length; i++) {
-    statusIndicator.classList.remove(possibleStatusIndicatorClass[i]);
-  }
-
-  for (let i = 0; i < possibleSubStatusIndicatorClass.length; i++) {
-    subStatusIndicator.classList.remove(possibleSubStatusIndicatorClass[i]);
-  }
+  Object.values(STATUS_COLORS)
+    .flat()
+    .forEach((colorClass) => {
+      statusIndicator.classList.remove(colorClass);
+      subStatusIndicator.classList.remove(colorClass);
+    });
 }
 
 /**
- * Checks if the Websocket code will reconnect
+ * Checks if the WebSocket code will reconnect
  * @param {number} socketCode
  * @returns {boolean}
  */
 function willReconnect(socketCode) {
-  // HTMX will automatically reconnect on these codes
   const reconnectCodes = [1006, 1012, 1013];
-
-  if (reconnectCodes.includes(socketCode)) {
-    return true;
-  }
-
-  return false;
+  return reconnectCodes.includes(socketCode);
 }
 
 /**
@@ -173,7 +160,9 @@ function updateStatus(status) {
 function scrollMessages() {
   const messages = document.getElementById("chat-messages");
   if (messages) {
-    messages.scrollTop = messages.scrollHeight;
+    requestAnimationFrame(() => {
+      messages.scrollTop = messages.scrollHeight;
+    });
   }
 }
 
@@ -193,4 +182,69 @@ function countMessageCharacters() {
       messageCounter.innerText = `${message.value.length}/${messageLength}`;
     }
   }
+}
+
+/**
+ * Format the date when a new message is received
+ * @param {HTMLElement} element
+ */
+function formatMessageTimestamps(element) {
+  const messageTimestamps = element.querySelectorAll("#message-timestamp");
+  if (messageTimestamps) {
+    messageTimestamps.forEach((timestamp) => {
+      const date = new Date(timestamp.innerText);
+      timestamp.innerText = formatDate(date);
+    });
+  }
+}
+
+/**
+ * Format date to a readable string
+ * @example "August 8th, 2024 at 6:11 PM"
+ * @param {Date} date
+ * @returns {string}
+ */
+function formatDate(date) {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const daySuffix = (day) => {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12;
+  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+
+  const formattedDate = `${
+    monthNames[date.getMonth()]
+  } ${date.getDate()}${daySuffix(
+    date.getDate()
+  )}, ${date.getFullYear()} at ${formattedHours}:${formattedMinutes} ${ampm}`;
+
+  return formattedDate;
 }

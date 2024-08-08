@@ -3,6 +3,7 @@ package templates
 import (
 	"github.com/cole-maxwell1/chatroom/internal/models"
 	"strconv"
+	"time"
 )
 
 templ ChatDisplay(messages []models.ChatMessage, connectedUsers int) {
@@ -98,7 +99,9 @@ templ ChatDisplay(messages []models.ChatMessage, connectedUsers int) {
 templ ChatMessage(msg models.ChatMessage) {
 	<li class="p-2 even:bg-gray-100 dark:even:bg-gray-800 odd:dark:bg-gray-900">
 		<p class="text-base text-left">{ msg.Content }</p>
-		<p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{ msg.Username } on { msg.FormattedDateTime }</p>
+		<p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+			{ msg.Username } on <span id="message-timestamp">{ msg.Timestamp.Format(time.RFC3339) }</span>
+		</p>
 	</li>
 }
 
