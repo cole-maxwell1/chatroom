@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TwiN/go-away"
 	"github.com/a-h/templ"
 	"github.com/cole-maxwell1/chatroom/internal/models"
 	"github.com/cole-maxwell1/chatroom/internal/pkg"
@@ -120,12 +121,15 @@ func (b *WebSocketBroker) sanitizeMessage(msg InboundMessage) {
 	if err != nil {
 		msg.Client.send <- []byte("Invalid message format")
 	} else {
-		// Remove leading and trailing whitespace from the message
-		sanitizedMsg := strings.TrimSpace(strings.Replace(incomingMsg.Message, "\n", " ", -1))
+		// Sanitize the message
+		sanitizedMsg := goaway.Censor(incomingMsg.Message)
+		//remove space from username
+		sanitizedUsername := strings.Replace(incomingMsg.Username, " ", "", -1)
+		sanitizedMsg = goaway.Censor(sanitizedMsg)
 
 		formattedMessage := models.ChatMessage{
 			Content:           sanitizedMsg,
-			Username:          incomingMsg.Username, // Replace the empty rune literal with a space rune
+			Username:          sanitizedUsername, // Replace the empty rune literal with a space rune
 			FormattedDateTime: pkg.FormatDate(time.Now()),
 		}
 
