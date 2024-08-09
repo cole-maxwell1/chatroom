@@ -8,5 +8,6 @@ import (
 )
 
 func RenderChatRoom(c echo.Context, broker *WebSocketBroker) error {
-	return Render(c, http.StatusOK, templates.ChatDisplay(chatMessages.Get(), len(broker.clients)))
+
+	return Render(c, http.StatusOK, templates.ChatDisplay(broker.chatMessages.Get(), len(broker.clients)))
 }
