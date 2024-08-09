@@ -1,3 +1,4 @@
+// Credit to the Gorilla Websocket Chat Example:
 // Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -12,6 +13,7 @@ This channel is used to notify the broker when a client connects or disconnects.
 - Add and additional channel for inbound messages from the clients.
 This channel is used to intercept messages to sanitize and validate them
 before they are broadcasted to all clients.
+- Add connectionChange channel to notify all clients of the total number of chatters.
 */
 
 package web
@@ -20,7 +22,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"strings"
 	"time"
 
 	goaway "github.com/TwiN/go-away"
@@ -120,12 +121,12 @@ func (b *WebSocketBroker) sanitizeMessage(msg InboundMessage) {
 	err := json.Unmarshal(msg.UnsanitizedMessage, &incomingMsg)
 	if err != nil {
 		msg.Client.send <- []byte("Invalid message format")
+		b.unregister <- msg.Client
 	} else {
 		// Sanitize the message
 		sanitizedMsg := goaway.Censor(incomingMsg.Message)
 		//remove space from username
-		sanitizedUsername := strings.Replace(incomingMsg.Username, " ", "", -1)
-		sanitizedMsg = goaway.Censor(sanitizedMsg)
+		sanitizedUsername := goaway.Censor(incomingMsg.Username)
 
 		formattedMessage := models.ChatMessage{
 			Content:   sanitizedMsg,
