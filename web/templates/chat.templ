@@ -125,7 +125,11 @@ templ TotalChatters(totUsers int) {
 			}
 		</span>
 		<p class="font-semibold text-3xl">
-			{ strconv.Itoa(totUsers - 1) }
+			if totUsers - 1 > 0 {
+				{ strconv.Itoa(totUsers - 1) }
+			} else {
+				0
+			}
 		</p>
 	</div>
 	<div class="flex justify-between">
