@@ -24,7 +24,6 @@ jobs:
           fetch-depth: 0 # this is important, otherwise it won't checkout the full tree (i.e. no previous tags)
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.19
           cache: true
       - uses: docker/login-action@v3                   # login to ghcr
         with:
