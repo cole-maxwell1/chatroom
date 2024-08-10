@@ -49,6 +49,7 @@ dockers:
     use: buildx
     dockerfile: Dockerfile.goreleaser
     build_flag_templates:
+      - "--push"
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.name={{.ProjectName}}"
@@ -58,11 +59,12 @@ dockers:
       - "--label=org.opencontainers.image.platform=linux/arm64"
       - --label=org.opencontainers.image.licenses=MIT
   - image_templates:
-      - "ghcr.io/cole-maxwell1/chatroom:{{ .Tag }}-arm64v8"
+      - "ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}-arm64v8"
     use: buildx
     dockerfile: Dockerfile.goreleaser
     goarch: arm64
     build_flag_templates:
+      - "--push"
       - "--platform=linux/arm64/v8"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.name={{.ProjectName}}"
