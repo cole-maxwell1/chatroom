@@ -29,8 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Serve static files
 	fileServer := http.FileServer(http.FS(web.Files))
-	e.GET("/javascript/*", echo.WrapHandler(fileServer))
-	e.GET("/css/main.css", echo.WrapHandler(fileServer))
+	e.GET("/static/*", echo.WrapHandler(fileServer))
 
 	broker := web.NewHub()
 	go broker.Run()
@@ -53,8 +52,5 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 func skipWebSocket(c echo.Context) bool {
 	// Skip middleware if path is equal 'login'
-	if c.Request().URL.Path == "/ws" {
-		return true
-	}
-	return false
+	return c.Request().URL.Path == "/ws"
 }

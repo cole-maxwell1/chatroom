@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tailwind:build": "npx tailwindcss -i ./web/css/input.css -o ./web/css/main.css --minify",
-    "tailwind:watch": "npx tailwindcss -i ./web/css/input.css -o ./web/css/main.css --watch"
+    "tailwind:build": "npx tailwindcss -i ./web/src/input.css -o ./web/static/css/main.css --minify",
+    "tailwind:watch": "npx tailwindcss -i ./web/src/input.css -o ./web/static/css/main.css --watch"
   },
   "author": "",
   "license": "ISC",
