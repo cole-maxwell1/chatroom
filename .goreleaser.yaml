@@ -73,14 +73,14 @@ dockers:
       - "--label=org.opencontainers.image.source={{.GitURL}}"
       - --label=org.opencontainers.image.licenses=MIT
 docker_manifests:
-  - name_template: ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Version }}
+  - name_template: ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}
     image_templates:
-      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Version }}-arm64v8
+      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}-amd64
+      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}-arm64v8
   - name_template: ghcr.io/cole-maxwell1/{{ .ProjectName }}:latest
     image_templates:
-      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Version }}-arm64v8
+      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}-amd64
+      - ghcr.io/cole-maxwell1/{{ .ProjectName }}:{{ .Tag }}-arm64v8
 
 checksum:
   name_template: "checksums.txt"
