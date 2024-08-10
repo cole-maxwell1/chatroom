@@ -18,6 +18,35 @@ This project is a chatroom application I threw together to learn more about Webs
     ```
  1. Or view live at [chat.colemaxwell.dev](https://chat.colemaxwell.dev/)
 
+## K6 Load Testing
+
+I ran some load testing on the chatroom using the [K6](https://grafana.com/docs/k6/latest/get-started/) load testing tool. The test ramps to 50 users over 30 seconds and sustains 50 for one minute. Each connection sends a message after connecting. The test was run on a Hetzner VPS with 2 vCPUs and 2GB of RAM. `loadtest.js` is configured to run on a local instance. You can run the test yourself with the following command:
+```sh
+k6 run loadtest.js
+```
+
+Results:
+```sh
+✓ Connected successfully
+
+     checks................: 100.00% ✓ 3316        ✗ 0
+     data_received.........: 165 MB  1.6 MB/s
+     data_sent.............: 2.6 MB  26 kB/s
+     iteration_duration....: avg=1.21s    min=1.14s    med=1.16s    max=2.55s p(90)=1.35s    p(95)=1.45s
+     iterations............: 3316    32.915225/s
+     vus...................: 4       min=2         max=50
+     vus_max...............: 50      min=50        max=50
+     ws_connecting.........: avg=209.99ms min=139.68ms med=162.28ms max=1.53s p(90)=348.65ms p(95)=451.28ms
+     ws_msgs_received......: 343532  3409.961751/s
+     ws_msgs_sent..........: 3316    32.915225/s
+     ws_session_duration...: avg=1.21s    min=1.14s    med=1.16s    max=2.55s p(90)=1.35s    p(95)=1.45s
+     ws_sessions...........: 3316    32.915225/s
+
+
+running (1m40.7s), 00/50 VUs, 3316 complete and 0 interrupted iterations
+default ✓ [======================================] 00/50 VUs  1m40s
+```
+
 ## Development
 
 1. **Clone the Repository**:
