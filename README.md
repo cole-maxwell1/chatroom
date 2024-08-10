@@ -10,7 +10,15 @@ This project is a chatroom application I threw together to learn more about Webs
 - **Javascript Internationalization API**: Utilizes the [Intl API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) to format dates and times in the chatroom.
 - **Go Channels**: This server makes heavy use of Go channels to manage the communication between the server and clients. All sends and receives are done through channels and a central broker to prevent blocks and slow delivery to other connected clients.
 
-## Setup Instructions
+## Usage
+
+ 1. You can pull down the published docker image and give it a try yourself:
+    ```sh
+    docker run -d -p 8080:8080 ghcr.io/cole-maxwell1/chatroom:latest
+    ```
+ 1. Or view live at [chat.colemaxwell.dev](https://chat.colemaxwell.dev/)
+
+## Development
 
 1. **Clone the Repository**:
     ```sh
@@ -24,21 +32,13 @@ This project is a chatroom application I threw together to learn more about Webs
 
 1. **Build the Project**:
     ```sh
-    make
+    make build
     ```
 
 1. **Run the Server**:
     ```sh
     make run
     ```
-
-1. **Open the Client**:
-    Open `index.html` in your web browser to start the chatroom client.
-
-## Usage
-
-- Open the chatroom client in multiple browser tabs or different browsers. By default http://localhost:8080
-- Start typing messages and see them appear in real-time across all clients.
 
 ## Injection Attacks
 One of the big reasons for using the `templ` library is to prevent injection attacks in the chatroom. The `templ` library has some nice built checks to prevent this. For example, the `templ` library will not allow the use of the `<script>` tag in the chatroom. Don't believe me? Try it out for yourself!
