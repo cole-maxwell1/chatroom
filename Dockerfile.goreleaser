@@ -1,0 +1,8 @@
+FROM scratch
+# Copy binary from build step 
+# See: https://goreleaser.com/errors/docker-build/#do
+COPY chatroom /chatroom
+
+# Set startup options
+EXPOSE 8080
+ENTRYPOINT ["/chatroom"]
