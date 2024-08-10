@@ -4,15 +4,41 @@ BINARY_NAME=chatroom
 # Build the application
 all: build
 
-build:
-	@echo "Building..."
-	@templ generate
-	@npm run tailwind:build
-	@go build -o ./tmp/${BINARY_NAME} cmd/main.go
+templ:
+	@if command -v templ > /dev/null; then \
+	    templ generate; \
+	    echo "templ templates generated!";\
+	else \
+	    read -p "`templ` is not installed on your machine. Do you want to install it? [Y/n] " choice; \
+	    if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
+	        go install github.com/a-h/templ/cmd/templ@latest; \
+	        templ generate; \
+	        echo "templ templates generated!";\
+	    else \
+	        echo "You chose not to install templ. Exiting..."; \
+	        exit 1; \
+	    fi; \
+	fi
+
+tailwind:
+	@if command -v npm > /dev/null; then \
+	    npm run tailwind:build; \
+	    echo "css built!";\
+	else \
+	    echo "npm is not installed on your machine."; \
+		echo "Please install npm and nodejs on you machine."; \
+		echo "Exiting..."; \
+		exit 1; \
+	fi
+
+
+build: templ tailwind
+	@echo "Compinling go binary..."
+	@go build -v -o ./tmp/${BINARY_NAME} cmd/${BINARY_NAME}/main.go
 
 # Run the application
-run:
-	@go run cmd/main.go
+run: templ tailwind
+	@go run cmd/${BINARY_NAME}/main.go
 
 # Test the application
 test:
@@ -22,7 +48,7 @@ test:
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	@rm -f ${BINARY_NAME}
+	@rm -f tmp/${BINARY_NAME}
 
 # Live Reload
 watch:
